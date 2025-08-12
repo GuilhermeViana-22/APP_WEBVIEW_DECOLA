@@ -4,6 +4,19 @@ services:
   app-decola:
     build: .
     ports:
-      - "3000:80"
+      - "${PORT:-5000}:5000"
     restart: unless-stopped
-    container_name: app-decola-flutter
+    container_name: ${APP_NAME:-app-decola-flutter}
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - TZ=${TZ:-America/Sao_Paulo}
+      - APP_URL=${APP_URL}
+      - API_BASE_URL=${API_BASE_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-decola.rule=Host(`${APP_DOMAIN:-localhost}`)"
+      - "traefik.http.services.app-decola.loadbalancer.server.port=5000"
+      - "traefik.http.routers.app-decola.entrypoints=websecure"
+      - "traefik.http.routers.app-decola.tls.certresolver=letsencrypt"
